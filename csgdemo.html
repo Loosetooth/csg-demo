@@ -1,0 +1,114 @@
+<!--
+WebGL CSG Demo
+
+Copyright 2014 Marius Kintel
+-->
+
+<!DOCTYPE html>
+<html>
+<meta charset="UTF-8">
+<head>
+  <title>WebGL CSG Demo</title>
+<script src="vendor/three.js-dev/build/three.js"></script>
+<script src="vendor/three.js-dev/examples/js/postprocessing/EffectComposer.js"></script>
+<script src="vendor/three.js-dev/examples/js/postprocessing/RenderPass.js"></script>
+<script src="vendor/three.js-dev/examples/js/postprocessing/ShaderPass.js"></script>
+<script src="vendor/three.js-dev/examples/js/postprocessing/MaskPass.js"></script>
+<script src="vendor/three.js-dev/examples/js/shaders/CopyShader.js"></script>
+<script src="vendor/three.js-dev/examples/js/controls/TrackballControls.js"></script>
+<script src="vendor/jquery/dist/jquery.min.js"></script>
+<script src="vendor/jscolor/jscolor.js"></script>
+<script type="x-shader/x-vertex" id="nullvert">
+void main() {
+  gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0);
+}
+</script>
+<script type="x-shader/x-vertex" id="normalvert">
+varying vec3 vNormal;
+varying vec4 vColor;
+void main() {
+  vNormal = normal;
+  vColor = vec4(vNormal * 0.5 + 0.5, 1.0);
+  gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0);
+}
+</script>
+<script type="x-shader/x-fragment" id="lightfrag">
+varying vec3 vNormal;
+varying vec4 vColor;
+void main() {
+  vec3 light = vec3(0.5, 0.2, 1.0);
+  light = normalize(light);
+  float dProd = max(0.0, dot(vNormal, light));
+  gl_FragColor = vec4(vec3(dProd), 1.0) *  vColor;
+//  gl_FragColor = vColor;
+}
+</script>
+  <style type="text/css">
+    #canvaswrapper {
+      height:100vh;
+      width:100vw;
+    }
+    #canvas {
+      z-index: -2;
+    }
+    * { -webkit-user-select: none; -moz-user-select: none; cursor: default; }
+    body { font: 13px/18px Arial, sans-serif; background: black; color: white; overflow: hidden; }
+    a { color: inherit; cursor: pointer; }
+    img { display: none; }
+    ul { padding: 0 0 0 20px; }
+    h1 { font: 30px/30px;  text-align: center; }
+    h2 { font: 17px/17px; padding-top: 10px; }
+    small { display: block; font-size: 11px; line-height: 15px; }
+    canvas { position: absolute; top: 0; left: 0; }
+    #help { position: absolute; top: 0; right: 0; bottom: 0; width: 280px; padding-right: 20px; overflow: auto; }
+    #loading { position: absolute; left: 0; top: 50%; right: 300px; text-align: center; margin-top: -8px; }
+  </style>
+</head><body>
+  <div id="error"></div>
+  <div id="help">
+    <h1>WebGL CSG Demo</h1>
+    <table>
+      <tr><td>
+        Model: <select id="menu">
+          <option value="models/csg-logo.json" selected="">Logo</option>
+          <option value="models/csg-logo-double.json">Logo double bumpmap</option>
+          <option value="models/cube.json">Cube</option>
+          <option value="models/spheres.json">Spheres</option>
+          <option value="models/brick.json">Lego</option>
+          <option value="models/difference_cube.json">difference_cube</option>
+          <option value="models/intersection.json">intersection</option>
+          <option value="models/translate.json">translate</option>
+          <option value="models/union.json">union</option>
+          <option value="models/surface.json">surface</option>
+          <option value="models/text_on_cube.json">text_on_cube</option>
+          <option value="models/logo_and_text.json">logo_and_text</option>
+          <option value="models/fan_view.json">fan_view</option>
+          <option value="models/out.json">out</option>
+          <option value="models/tree.json">tree</option>
+          <option value="models/issue1000.json">issue1000</option>
+        </select></td>
+      </tr>
+      <tr><td>
+        Debug: 
+        <input id="debug" type="checkbox"/></td>
+        </tr>
+      <tr><td>
+        Extra objects: 
+        <input id="extra_objects" type="checkbox"/>
+        </td></tr>
+      <tr><td>
+        Renderer: <select id="renderermenu" size="1">
+          <option value="{useIDColors: true}" selected="">ID Colors</option>
+          <option value="{}">Real Z Buffer</option>
+          <option value="{optimizeMerges: true}">Real Z Buffer + Optimize Merges</option>
+        </select>
+        </td></tr>
+      <tr><td>
+        Background color: <input id="bgcolor" class="color" value="#93946A" onchange="document.body.style.backgroundColor = '#' + this.color.toString()">
+        </td></tr>
+    </table>
+ </div>
+
+  <div id="canvaswrapper"><canvas id="canvas"/></div>
+  <script src="js/app.js"/></script>
+</body></html>
